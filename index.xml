@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blueskea&#39;s Blog</title>
+    <link>https://blueskea.github.io/</link>
+    <description>Recent content on Blueskea&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 24 Nov 2019 19:14:03 +0800</lastBuildDate>
+    
+	<atom:link href="https://blueskea.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Docker版Ceph的安装和使用</title>
+      <link>https://blueskea.github.io/2019/328143/</link>
+      <pubDate>Sun, 24 Nov 2019 19:14:03 +0800</pubDate>
+      
+      <guid>https://blueskea.github.io/2019/328143/</guid>
+      <description>一、镜像下载 https://hub.docker.com/r/ceph/daemon/ 当前时间（2019.11）最新版本是n（nautilus）。但是由于docker版本的ceph-disk往ceph-volum</description>
+    </item>
+    
+  </channel>
+</rss>

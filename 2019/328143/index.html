@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Docker版Ceph的安装和使用 - Blueskea&#39;s Blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Blueskea" /><meta name="description" content="一、镜像下载 https://hub.docker.com/r/ceph/daemon/ 当前时间（2019.11）最新版本是n（nautilus）。但是由于docker版本的ceph-disk往ceph-volum" /><meta name="keywords" content="Blueskea, Hugo" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.74.3 with theme even" />
+
+
+<link rel="canonical" href="https://blueskea.github.io/2019/328143/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.651e6917abb0239242daa570c2bec9867267bbcd83646da5a850afe573347b44.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Docker版Ceph的安装和使用" />
+<meta property="og:description" content="一、镜像下载 https://hub.docker.com/r/ceph/daemon/ 当前时间（2019.11）最新版本是n（nautilus）。但是由于docker版本的ceph-disk往ceph-volum" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://blueskea.github.io/2019/328143/" />
+<meta property="article:published_time" content="2019-11-24T19:14:03+08:00" />
+<meta property="article:modified_time" content="2019-11-24T19:14:03+08:00" />
+<meta itemprop="name" content="Docker版Ceph的安装和使用">
+<meta itemprop="description" content="一、镜像下载 https://hub.docker.com/r/ceph/daemon/ 当前时间（2019.11）最新版本是n（nautilus）。但是由于docker版本的ceph-disk往ceph-volum">
+<meta itemprop="datePublished" content="2019-11-24T19:14:03+08:00" />
+<meta itemprop="dateModified" content="2019-11-24T19:14:03+08:00" />
+<meta itemprop="wordCount" content="7454">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Docker版Ceph的安装和使用"/>
+<meta name="twitter:description" content="一、镜像下载 https://hub.docker.com/r/ceph/daemon/ 当前时间（2019.11）最新版本是n（nautilus）。但是由于docker版本的ceph-disk往ceph-volum"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Blueskea</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Blueskea</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Docker版Ceph的安装和使用</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-11-24 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#一镜像下载">一、镜像下载</a></li>
+        <li><a href="#二安装">二、安装</a>
+          <ul>
+            <li><a href="#1-集群规划">1. 集群规划</a></li>
+            <li><a href="#2-系统配置">2. 系统配置</a></li>
+            <li><a href="#3-mon节点">3. mon节点</a></li>
+            <li><a href="#3-mgr节点">3. mgr节点</a></li>
+            <li><a href="#4-osd节点">4. osd节点</a></li>
+            <li><a href="#5-安装失败清除">5. 安装失败清除</a></li>
+          </ul>
+        </li>
+        <li><a href="#三验证">三、验证</a></li>
+        <li><a href="#四功能角色安装">四、功能角色安装</a>
+          <ul>
+            <li><a href="#1-对象存储网关">1. 对象存储网关</a></li>
+            <li><a href="#2-dashboard">2. DashBoard</a></li>
+          </ul>
+        </li>
+        <li><a href="#五关于权限">五、关于权限</a>
+          <ul>
+            <li><a href="#1-user">1. User</a></li>
+            <li><a href="#2-pool">2. Pool</a></li>
+            <li><a href="#3-namespace">3. Namespace</a></li>
+            <li><a href="#4-用户管理">4. 用户管理</a></li>
+            <li><a href="#5-keyring管理">5. Keyring管理</a></li>
+            <li><a href="#6-oss网关用户管理">6. OSS网关用户管理</a></li>
+          </ul>
+        </li>
+        <li><a href="#六参考">六、参考</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h2 id="一镜像下载">一、镜像下载</h2>
+<p><a href="https://hub.docker.com/r/ceph/daemon/">https://hub.docker.com/r/ceph/daemon/</a>
+当前时间（2019.11）最新版本是n（nautilus）。但是由于docker版本的ceph-disk往ceph-volumn的迁移还没有做完，最新版本对磁盘和文件存储的设置一直报错，所以使用的上一个本版 m（mimic）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker pull ceph/daemon:latest-mimic
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="二安装">二、安装</h2>
+<h3 id="1-集群规划">1. 集群规划</h3>
+<p>三个节点如下，只在 bigdata03  机器上安装对象存储网关
+bigdata01  192.168.1.101
+bigdata02  192.168.1.101
+bigdata03  192.168.1.103</p>
+<h3 id="2-系统配置">2. 系统配置</h3>
+<p>系统配置的所有步骤，如果没有特殊说明，每台机器上都要操作</p>
+<h4 id="1-关闭-selinux">(1) 关闭 selinux</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 即时生效</span>
+setenforce <span class="m">0</span>
+<span class="c1"># 更改配置使永久生效</span>
+vim /etc/selinux/config
+<span class="c1"># 设置</span>
+<span class="nv">SELINUX</span><span class="o">=</span>disable
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="2-创建存储文件夹">(2) 创建存储文件夹</h4>
+<p>Ceph容器挂在该文件夹存储数据，如果使用整块硬盘，可以不需要这一步。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">mkdir -p /data/ceph/<span class="o">{</span>etc,lib,osd<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="3-配置时间同步服务">(3) 配置时间同步服务</h4>
+<p>ntp或者chrony，不是文章的重点，大家可自行搜索。</p>
+<h3 id="3-mon节点">3. mon节点</h3>
+<p>monitor类似zookeeper，多个节点组成高可用集群
+(1) 在bigdata01上新建mon容器：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker run -d --net<span class="o">=</span>host --name ceph-mon <span class="se">\
+</span><span class="se"></span>-v /data/ceph/etc:/etc/ceph <span class="se">\
+</span><span class="se"></span>-v /data/ceph/lib/:/var/lib/ceph/ <span class="se">\
+</span><span class="se"></span>-e <span class="nv">MON_IP</span><span class="o">=</span>192.168.1.101 <span class="se">\
+</span><span class="se"></span>-e <span class="nv">CEPH_PUBLIC_NETWORK</span><span class="o">=</span>192.168.1.0/16 <span class="se">\
+</span><span class="se"></span>--restart<span class="o">=</span>always <span class="se">\
+</span><span class="se"></span>ceph/daemon:latest-mimic mon
+</code></pre></td></tr></table>
+</div>
+</div><p>(2) 修改宿主机 /data/ceph/etc/ceph.conf</p>
+<p>只需要在一台机器上操作，后面会同步到其他机器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 修改下面两行，添加另外一两台主机</span>
+mon initial <span class="nv">members</span> <span class="o">=</span> bigdata01,bigdata02,bigdata03
+mon <span class="nv">host</span> <span class="o">=</span> 192.168.1.101,192.168.1.102,192.168.1.103
+</code></pre></td></tr></table>
+</div>
+</div><p>如果文件系统是ext4的，需要加下面两个配置，否则osd起不来，</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 否则osd角色报错：ERROR: osd init failed: (36) File name too long</span>
+osd max object name <span class="nv">len</span> <span class="o">=</span> <span class="m">256</span>
+osd max object namespace <span class="nv">len</span> <span class="o">=</span> <span class="m">64</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>(3) 导出mon的登陆信息到 keyring 文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker <span class="nb">exec</span> ceph-mon ceph auth get client.bootstrap-osd -o /etc/ceph/ceph.keyring
+</code></pre></td></tr></table>
+</div>
+</div><p>(4) 将配置文件复制到其他两台机器，有etc和lib文件夹下的对应配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">scp /data/ceph/etc/* bigdata01:/data/ceph/etc/
+scp -r /data/ceph/lib/bootstrap-* bigdata01:/data/ceph/lib/
+</code></pre></td></tr></table>
+</div>
+</div><p>(5) 修改配置文件所属用户</p>
+<p>每台机器都执行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 167是docker容器内的账号，可以查看docker生成的文件的所属用户，然后将自己新建的文件也改成这个用户</span>
+chown -R 167:167 /data/ceph/*
+</code></pre></td></tr></table>
+</div>
+</div><p>(6) 在另外两个节点上新建mon容器，命令和(1) 是一样的，但是要注意修改 MON_IP 为对应主机的IP</p>
+<h3 id="3-mgr节点">3. mgr节点</h3>
+<p>类似zookeeper，有多个节点时，只有一个是工作的，其他的处于standby状态
+在三个节点上都建立mgr容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker run -d --net<span class="o">=</span>host --name ceph-mgr <span class="se">\
+</span><span class="se"></span>-v /data/ceph/etc:/etc/ceph <span class="se">\
+</span><span class="se"></span>-v /data/ceph/lib/:/var/lib/ceph/ <span class="se">\
+</span><span class="se"></span>--restart<span class="o">=</span>always <span class="se">\
+</span><span class="se"></span>ceph/daemon:latest-mimic mgr
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="4-osd节点">4. osd节点</h3>
+<p>osd节点是真正存储数据的功能节点，在三个节点上都新建一个容器：
+(1) 方式一
+使用本地的一个文件夹，但是性能会稍差</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker run -d --net<span class="o">=</span>host <span class="se">\
+</span><span class="se"></span>--name ceph-osd --pid<span class="o">=</span>host <span class="se">\
+</span><span class="se"></span>-v /data/ceph/etc:/etc/ceph <span class="se">\
+</span><span class="se"></span>-v /data/ceph/osd:/var/lib/ceph/osd <span class="se">\
+</span><span class="se"></span>-v /data/ceph/lib/:/var/lib/ceph/ <span class="se">\
+</span><span class="se"></span>--restart<span class="o">=</span>always <span class="se">\
+</span><span class="se"></span>ceph/daemon:latest-mimic osd
+</code></pre></td></tr></table>
+</div>
+</div><p>(2) 方式二
+使用一整块硬盘</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker run -d --net<span class="o">=</span>host --name osd <span class="se">\
+</span><span class="se"></span>--privileged<span class="o">=</span><span class="nb">true</span> --pid<span class="o">=</span>host <span class="se">\
+</span><span class="se"></span>-v /data/ceph/etc:/etc/ceph <span class="se">\
+</span><span class="se"></span>-v /data/ceph/lib/:/var/lib/ceph/ <span class="se">\
+</span><span class="se"></span>-v /dev/:/dev/ <span class="se">\
+</span><span class="se"></span>-e <span class="nv">OSD_DEVICE</span><span class="o">=</span>/dev/sdb <span class="se">\
+</span><span class="se"></span>-e <span class="nv">OSD_TYPE</span><span class="o">=</span>disk <span class="se">\
+</span><span class="se"></span>ceph/daemon:latest-mimic osd
+</code></pre></td></tr></table>
+</div>
+</div><p>到这里，集群已经可以用了，后面根据需求添加更多的组件</p>
+<h3 id="5-安装失败清除">5. 安装失败清除</h3>
+<p>安装失败的时候用到</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">docker rm -f ceph-mon
+docker rm -f ceph-mgr
+docker rm -f ceph-osd
+rm -rf /data/ceph
+mkdir -p /data/ceph/<span class="o">{</span>etc,lib,osd<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="三验证">三、验证</h2>
+<p>完成上面的步骤后，最基本的集群已经搭建起来了。使用下面的命令测试</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 查看集群健康状态，没有error就行，可能会出现时钟不同步的警告</span>
+docker <span class="nb">exec</span> -it ceph-mon ceph health detail
+<span class="c1"># 查看集群储存容量</span>
+docker <span class="nb">exec</span> -it ceph-mon ceph df
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="四功能角色安装">四、功能角色安装</h2>
+<h3 id="1-对象存储网关">1. 对象存储网关</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 添加授权,如果文件已存在，可忽略</span>
+docker <span class="nb">exec</span> ceph-mon ceph auth get client.bootstrap-rgw -o /var/lib/ceph/bootstrap-rgw/ceph.keyring
+
+<span class="c1"># 多台机器上都安装rgw角色，只需要将第一次生成的 ceph.keyring 复制到其他机器的指定相同目录就行</span>
+
+<span class="c1"># 启动实例</span>
+docker run -d --net<span class="o">=</span>host --name ceph-rgw <span class="se">\
+</span><span class="se"></span>-v /data/ceph/lib/:/var/lib/ceph/ <span class="se">\
+</span><span class="se"></span>-v /data/ceph/etc:/etc/ceph <span class="se">\
+</span><span class="se"></span>--restart<span class="o">=</span>always <span class="se">\
+</span><span class="se"></span>ceph/daemon:latest-mimic rgw
+</code></pre></td></tr></table>
+</div>
+</div><p>单节点的时候是启动不了的，因为rgw会创建几个系统的pool，但是默认min_size 不是1 ，所以访问不了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">.rgw.root
+default.rgw.control
+default.rgw.meta
+default.rgw.log
+</code></pre></td></tr></table>
+</div>
+</div><p>解决方法就是手动将 min_size 设置成1：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph osd pool <span class="nb">set</span> .rgw.root min_size <span class="m">1</span>
+ceph osd pool <span class="nb">set</span> default.rgw.control min_size <span class="m">1</span>
+ceph osd pool <span class="nb">set</span> default.rgw.meta min_size <span class="m">1</span>
+ceph osd pool <span class="nb">set</span> default.rgw.log min_size <span class="m">1</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后重启rgw的容器</p>
+<p>添加一个对象存储用户</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin user create --uid<span class="o">=</span>admin --display-name<span class="o">=</span>admin --email<span class="o">=</span>admin@blueskea.top
+<span class="c1"># 保存返回值中下面信息，后面用到</span>
+<span class="o">{</span>
+    <span class="s2">&#34;user&#34;</span>: <span class="s2">&#34;admin&#34;</span>,
+    <span class="s2">&#34;access_key&#34;</span>: <span class="s2">&#34;9WXLSCT8NZO6S88OAHK8&#34;</span>,
+    <span class="s2">&#34;secret_key&#34;</span>: <span class="s2">&#34;HPuyRWMTwSW6xgAIqnddClLW8upTw3S65xO64tv3&#34;</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>为对象存储功能分配创建、分配一个名为oss的pool</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 创建pool, 后面的两个数字是 pg_num和pgp_num, 参考后面的说明</span>
+ceph osd pool create oss <span class="m">128</span> <span class="m">128</span>
+<span class="c1"># 分配</span>
+ceph osd pool application <span class="nb">enable</span> oss rgw
+</code></pre></td></tr></table>
+</div>
+</div><p>如果只创建，不分配，创建的pool没有被任何服务用到， 的时候，有可能报下面的警告</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">HEALTH_WARN application not enabled on <span class="m">1</span> pool<span class="o">(</span>s<span class="o">)</span>
+POOL_APP_NOT_ENABLED application not enabled on <span class="m">1</span> pool<span class="o">(</span>s<span class="o">)</span>
+    application not enabled on pool <span class="s1">&#39;test1&#39;</span>
+    use <span class="s1">&#39;ceph osd pool application enable &lt;pool-name&gt; &lt;app-name&gt;&#39;</span>, where &lt;app-name&gt; is <span class="s1">&#39;cephfs&#39;</span>, <span class="s1">&#39;rbd&#39;</span>, <span class="s1">&#39;rgw&#39;</span>, or freeform <span class="k">for</span> custom applications.
+</code></pre></td></tr></table>
+</div>
+</div><p>s3cmd 工具类配置</p>
+<p>在rgw的docker中已经默认安装好了s3cmd ，s3cmd是一个用于管理s3文件系统的工具类
+(1) 初始化工具类 </p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">s3cmd --configure
+<span class="c1"># 输入accesss key 、 secretkey：上面创建用户的时候返回的</span>
+<span class="c1"># S3 Endpoint：当前节点:7480,如 bigdata01:7480</span>
+<span class="c1"># 最后生成配置文件 ~/.s3cfg ，可以修改改文件做进一步配置</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>(2) 测试常用命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 查看目录结构</span>
+s3cmd ls
+
+<span class="c1"># 创建bucket</span>
+s3cmd mb s3://Test   <span class="c1"># Test是Bucket名，首字母必须大写</span>
+<span class="c1"># 查看bucket下的文件</span>
+s3cmd ls s3://Test   <span class="c1"># Test是Bucket名</span>
+
+<span class="c1"># 上传文件</span>
+s3cmd put anaconda-ks.cfg s3://Test/
+
+<span class="c1"># 下载文件</span>
+s3cmd get s3://Test/anaconda-ks.cfg from.txt
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="2-dashboard">2. DashBoard</h3>
+<p>Ceph自带的网页控制台</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 进入容器</span>
+docker <span class="nb">exec</span> -it ceph-mgr bash
+
+<span class="c1"># 停用 dashboard 模块</span>
+ceph mgr module disable dashboard
+
+<span class="c1"># 配置 dashboard 地址与端口</span>
+ceph config <span class="nb">set</span> mgr mgr/dashboard/server_addr 0.0.0.0
+ceph config <span class="nb">set</span> mgr mgr/dashboard/server_port <span class="m">9000</span>
+
+<span class="c1"># 配置 dashboard 禁用 ssl</span>
+ceph config <span class="nb">set</span> mgr mgr/dashboard/ssl <span class="nb">false</span>
+
+<span class="c1"># 使用 dashboard 模块</span>
+ceph mgr module <span class="nb">enable</span> dashboard
+
+<span class="c1"># 配置 dashboard 账户与密码</span>
+ceph dashboard set-login-credentials lanmingle lanmingle
+
+<span class="c1"># 使用 dashboard 创建自签署的证书</span>
+ceph dashboard create-self-signed-cert
+
+<span class="c1"># 上面的设置完成后，查看 mgr 服务</span>
+ceph mgr services
+<span class="c1"># 输出:</span>
+<span class="o">{</span>
+    <span class="s2">&#34;dashboard&#34;</span>: <span class="s2">&#34;https://0.0.0.0:9000/&#34;</span>
+<span class="o">}</span>
+<span class="c1"># 浏览器访问即可</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="五关于权限">五、关于权限</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 设置bucket和所有下级文件为公开访问</span>
+<span class="c1"># 访问地址：http://ip:7480/bucketname/filename</span>
+s3cmd setacl s3://Test --acl-public --recursive
+</code></pre></td></tr></table>
+</div>
+</div><p>Ceph存储集群的认证和授权默认是启用的。无论是独立的个体用户，还是系统中的一个应用（如RGW），他们都使用ceph的客户端与ceph存储集群交互。当ceph启用认证和授权时，你必须要指定用户名和包含秘钥的钥匙环才可以使用客户端与集群进行交互。如果不指定如：ceph heath，它会使用默认用户client.admin并自动通过keyring查找对用的key。</p>
+<p>手动指定用户和秘钥的方式：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph –n client.admin –keyring<span class="o">=</span>/etc/ceph/ceph.client.admin.keyring health
+</code></pre></td></tr></table>
+</div>
+</div><p>和上面的指令的效果是相同的。</p>
+<p>不管什么类型的客户端（块，对象，文件系统，还是本地api）ceph把所有的数据都统一存储在池中。用户必须要有对池的访问权限，而且ceph用户还要有执行权限，以便使用ceph的管理指令。</p>
+<h3 id="1-user">1. User</h3>
+<p>用户可以是一个独立的个体，或者系统的一个角色如一个应用。创建了用户，才允许你访问存储集群，它的池，和池中的数据。</p>
+<p>Ceph中有userType概念，用户的管理通常是client。Ceph对用户的辨别是通过点分割的形式，它包含类型和用户名如：TYPE.ID格式client.admin，client.user1。使用用户类型的原因是因为ceph monitors osds 和metadata 服务也都使用了cephx协议，但是他们不是客户端，类型就是用于区分的。区分用户类型有助于在客户端用户和其他用户的访问控制，用户监控和跟踪的辨别。</p>
+<p>注：ceph存储集群用户和ceph对象存储用户或者ceph文件系统用户是不一样的，ceph object gateway使用存储集群用户来进行gateway守护进程和存储集群之间交互。但是gateway有他自己的终端用户管理功能。Ceph文件系统使用的是posix，与ceph文件系统相关的用户跟ceph存储集群用户也是不同的。</p>
+<p>Ceph使用“capability”来标识赋予已认证用户执行monitors ，osd，和metadata 服务功能的能力。Capability严格控制对池中数据的访问或者池中命名空间的访问。当创建用户的时候由管理员用户来赋予用户capability。
+Capability的语法如下：</p>
+<h3 id="2-pool">2. Pool</h3>
+<p>Pool是对存储的逻辑划分，用户把数据都放到pool里，默认情况下，ceph storage cluster中有data pool，rbd pool，metadata pool。在ceph的部署中为相似的数据创建一个pool来存放数据是很普遍的。例如当把ceph作为opentack的后端时，典型的部署有volumes ，image，backups，和virtual machine pool，和用户如：client.glance，client.cinder，etc</p>
+<h3 id="3-namespace">3. Namespace</h3>
+<p>池中对象的一个逻辑组织，池中的对象可以关联到该命名空间中。户访问的pool可以关联到一个池中，这样用户所做的读写尽在该命名空间中有效。Pool中写在命名空间中的数据只有对该命名空间有访问权限的用户才可以访问。</p>
+<p>命名空间对与使用librados写数据的应用是很有用的，但是像block device client，object storage client和filesystem 暂时还不支持该特性。</p>
+<h3 id="4-用户管理">4. 用户管理</h3>
+<h4 id="41-获取所有用户">4.1 获取所有用户</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth list
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="42-查看指定用户详情">4.2 查看指定用户详情</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth get <span class="o">{</span>TYPE.ID<span class="o">}</span>
+<span class="c1"># 例子 ceph auth get client.admin</span>
+
+<span class="c1"># 打印用户key</span>
+ceph auth print-key <span class="o">{</span>TYPE<span class="o">}</span>.<span class="o">{</span>ID<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="43-创建用户">4.3 创建用户</h4>
+<p>创建用户会添加一个用户名，key和capability，用户的key使用户能通过ceph storage cluster认证，用户的capabilities使用户具有一定的monitors，osds，或者metadata server的功能。</p>
+<p>创建用户的三种方式：</p>
+<p>(1) ceph auth add</p>
+<p>这个命令可以创建用户，产生秘钥和添加一些指定的capabilities</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># ceph auth add {TYPE.ID} 组件1 &#39;权限1&#39; 组件2 &#39;权限2&#39;...</span>
+ceph auth add client.john mon <span class="s1">&#39;allow r&#39;</span> osd <span class="s1">&#39;allow rw pool=liverpool&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>(2) ceph auth get-or-create:这个命令会返回一个包含用户名和秘钥的keyfile</p>
+<p>格式。如果用户已经存在，它就会以keyfile 格式返回用户名和key。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth get-or-create client.paul mon <span class="s1">&#39;allow r&#39;</span> osd <span class="s1">&#39;allow rw pool=liverpool&#39;</span>
+
+<span class="c1"># 将结果输出到文件</span>
+ceph auth get-or-create client.george mon <span class="s1">&#39;allow r&#39;</span> osd <span class="s1">&#39;allow rw pool=liverpool&#39;</span> -o george.keyring
+</code></pre></td></tr></table>
+</div>
+</div><p>(3) ceph auth</p>
+<p>get-or-create-key:这个命令创建用户但是只返回用户的key，如果想知道已存在用的key，这个命令是很有用的。可以使用-o {filename}选项把输出打印到指定文件。</p>
+<p>如果只创建用户，没有赋予用户capabilities，那么用户基本是无用的，但是可以使用命令ceph auth caps 给其添加capabilities。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth get-or-create-key client.ringo mon <span class="s1">&#39;allow r&#39;</span> osd <span class="s1">&#39;allow rw pool=liverpool&#39;</span> -o ringo.key
+</code></pre></td></tr></table>
+</div>
+</div><p>(4) 其他</p>
+<p>如果赋予用户osd的capability，但是没有指定特定的pool，则该用户对集群中所有的pool有访问权限。</p>
+<h4 id="44-修改用户capability">4.4 修改用户capability</h4>
+<p>(1) 修改</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth caps <span class="o">{</span>TYPE.ID<span class="o">}</span> <span class="o">{</span>daemon<span class="o">}</span> <span class="s1">&#39;allow [r|w|x|*|...] [pool={pool-name}] [namespace={namespace-name}&#39;</span><span class="o">]</span>
+
+<span class="c1"># 例子</span>
+ceph auth caps client.john mon <span class="s1">&#39;allow r&#39;</span> osd <span class="s1">&#39;allow rw pool=liverpool&#39;</span>
+ceph auth caps client.paul mon <span class="s1">&#39;allow rw&#39;</span> osd <span class="s1">&#39;allow rwx pool=liverpool&#39;</span>
+ceph auth caps client.brian-manager mon <span class="s1">&#39;allow *&#39;</span> osd <span class="s1">&#39;allow *&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>(2) 删除</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 删除用户的capabilities, 将权限指向空字符串。</span>
+ceph auth caps client.rngo mon <span class="s1">&#39;&#39;</span> osd <span class="s1">&#39;&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="45-删除用户">4.5 删除用户</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth del <span class="o">{</span>TYPE<span class="o">}</span>.<span class="o">{</span>ID<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="46-导入">4.6 导入</h4>
+<p>ceph集群会添加新的用户、对应的keys和capabilities，同时也会更新已经存在用户的keys和capabilities。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">ceph auth import –I /path/to/keyring
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="5-keyring管理">5. Keyring管理</h3>
+<p>用户使用ceph client访问ceph时，ceph client会寻找本地的本地的keyring文件（/etc/ceph/xxx.keyring），ceph默认情况下预先对keyring做了下面四个文件的设置，所以你不必再设置它们，除非你想覆盖默认设置。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">/etc/ceph/<span class="nv">$cluster</span>.<span class="nv">$name</span>.keyring 
+/etc/ceph/<span class="nv">$cluster</span>.keyring 
+/etc/ceph/keyring 
+/etc/ceph/keyring.bin
+</code></pre></td></tr></table>
+</div>
+</div><p>变量cluster是集群的名字，由ceph.conf配置文件名所定义（例如：ceph.conf意思是集群的名字是ceph，变量name是用户类型和用户id（如client.admin，则文件名为：ceph.client.admin.keyring）</p>
+<h4 id="51-创建一个keyring">5.1 创建一个keyring</h4>
+<p>当你在用户管理中创建一个用户，然后需要创建一个钥匙环，你需要给ceph client提供一个用户keys，这样ceph client才能检索到指定用户的key，然后通过ceph storage cluster的认证。Ceph client 通过查询keyring来寻找用户名和用户的key。</p>
+<p>ceph-authtool程序可以帮助你创建keyring，创建一个空的keyring，使用—create-keyring或ceph-authtool –create-keyring /path/to/keyring当你创建一个钥匙环供多个用户使用时，最好使用集群的名字作为钥匙环的名字，并保存在/etc/ceph/目录下，因为keyring的默认设置会检索这个配置文件而不需要你在单独指定本地配置文件的副本。例如ceph.keyring。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph-authtool –C /etc/ceph/ceph.keyring
+</code></pre></td></tr></table>
+</div>
+</div><p>当创建的钥匙环为单个用户使用，最好使用集群的名字，用户的类型和用户的名字，并保存在/etc/ceph目录下。例如client.admin用户的钥匙环ceph.client.admin.keyring。
+在/etc/ceph目录下创建钥匙环，必须使用root用户。这意味着只有root用户才有钥匙环rw权限，当钥匙环包含的是管理源的keys，这样就比较合理了。如果你打算为某个特定的用户，或者用户组使用一个特定的钥匙环，要确保使用chown或者chmod来建立适当的keyring所有权和访问权。</p>
+<h4 id="52-添加用户到钥匙环">5.2 添加用户到钥匙环</h4>
+<p>如果想为每个用户都建立一个钥匙环 (keyring) 的话，可以使用下面这个命令，添加一个 -o 选项，把输出保存到keyring文件格式中。如：为用户 client.admin 创建钥匙环。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph auth get client.admin –o /etc/ceph/ceph.client.admin.keyring
+</code></pre></td></tr></table>
+</div>
+</div><p>当想把已经存在的用户导入到keyring中时，可以使用ceph-authtool工具来完成，要指定目的钥匙环和源钥匙环。如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph-authtool /etc/ceph/ceph.keyring  --import-keyring /etc/ceph/ceph.client.admin.keyring
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="53-创建用户">5.3 创建用户</h4>
+<p>ceph提供了添加用户功能来直接在集群中创建用户，然而你也可以直接在ceph client中创建用户，key和capabilities。然后在把用户导入到ceph集群中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph-authtool –n client.ringo –cap osd ‘allow rwx’ –cap mon ‘allow rwx’ /etc/ceph/ceph.keyring
+</code></pre></td></tr></table>
+</div>
+</div><p>也可以把创建钥匙环和添加新用户同时进行。如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph-authtool –C /etc/ceph/ceph.keyring –n client.ringo –cap osd ‘allow rwx’ –cap mon ‘allow rwx’ –gen-key
+</code></pre></td></tr></table>
+</div>
+</div><p>在上述场景中新用户client.ringo仅仅存在于keyring中，要把新用户添加到ceph storage cluster中，你必须添加新的用户到ceph storage cluster中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph auth add client.ringo –I /eetc/ceph/ceph.keyring
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="54-修改用户">5.4 修改用户</h4>
+<p>更改记录在keyring中的用户的capabilities，通过capabilities指定keyring和用户名：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph-authtool /etc/ceph/ceph.keyring –n client.ringo –cap osd ‘allow rwx’ –cap mon <span class="s1">&#39;allow rxx&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里表时更新用户到ceph storage cluster中，在ceph storage cluster 中你必须要更新keyring中的用户实体。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">sudo ceph auth import –I /etc/ceph/ceph.keyring
+</code></pre></td></tr></table>
+</div>
+</div><p>你也可以在集群中直接更新用户的capabilities，把结果存储在keyring文件中，然后把keyring导入到你的主要ceph.keyring中。</p>
+<h3 id="6-oss网关用户管理">6. OSS网关用户管理</h3>
+<p>RestfulAPI方式：https://docs.ceph.com/docs/master/radosgw/adminops/</p>
+<p>命令方式：https://docs.ceph.com/docs/master/radosgw/admin/</p>
+<p>Ceph RGW(即RADOS Gateway)是Ceph对象存储网关服务，是基于LIBRADOS接口封装实现的、对外提供存储和管理对象数据的Restful API服务。 对象存储适用于图片、视频等各类文件的上传下载，可以设置相应的访问权限。目前Ceph RGW兼容常见的对象存储API，例如兼容绝大部分Amazon S3 API，兼容OpenStack Swift API。</p>
+<p>RADOS 的用户是对象存储的用户，和Ceph存储集群的用户没有直接的关联关系。</p>
+<p>{% asset_img ceph-rgw.png %}</p>
+<h4 id="61-获取所有用户">6.1 获取所有用户</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin user list
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="62-查看指定用户详情">6.2 查看指定用户详情</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin user info --uid<span class="o">=</span>admin
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="63-修改指定用户">6.3 修改指定用户</h4>
+<p>一般会修改：keys and secrets, email addresses, display names and access levels</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin user modify --uid<span class="o">=</span>johndoe --display-name<span class="o">=</span><span class="s2">&#34;John E. Doe&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>修改子用户(Swift可用)：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin subuser modify --subuser<span class="o">=</span>johndoe:swift --access<span class="o">=</span>full
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="64-启用禁用指定用户">6.4 启用/禁用指定用户</h4>
+<p>创建用户后，默认是启用的</p>
+<p>禁用账号，会将其子用户也一同禁用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 禁用账号</span>
+radosgw-admin user <span class="nb">suspend</span> --uid<span class="o">=</span>johndoe
+<span class="c1"># 启动账号</span>
+radosgw-admin user <span class="nb">enable</span> --uid<span class="o">=</span>johndoe
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="65-添加用户">6.5 添加用户</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># email是可选</span>
+radosgw-admin user create --uid<span class="o">=</span>foo --display-name<span class="o">=</span>foo --email<span class="o">=</span>foo@foo.com
+
+<span class="c1"># 返回, 输出中的access_key和secret_key 是后面登陆用到的验证信息</span>
+<span class="s2">&#34;user&#34;</span>: <span class="s2">&#34;foo&#34;</span>,
+<span class="s2">&#34;access_key&#34;</span>: <span class="s2">&#34;W0FE3UJ375EAHMT0660A&#34;</span>,
+<span class="s2">&#34;secret_key&#34;</span>: <span class="s2">&#34;HeHbboOIfpc6N1lAxlCmW0S69owWBCBRQnL4BI6m&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>添加子用户（Swift中可用）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin subuser create --uid<span class="o">={</span>uid<span class="o">}</span> --subuser<span class="o">={</span>uid<span class="o">}</span> --access<span class="o">=[</span> <span class="nb">read</span> <span class="p">|</span> write <span class="p">|</span> readwrite <span class="p">|</span> full <span class="o">]</span>
+<span class="c1"># 例子</span>
+radosgw-admin subuser create --uid<span class="o">=</span>johndoe --subuser<span class="o">=</span>johndoe:swift --access<span class="o">=</span>full
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="66-删除用户">6.6 删除用户</h4>
+<p>可选参数：</p>
+<p>Purge Data: The &ndash;purge-data option purges all data associated to the UID.</p>
+<p>Purge Keys: The &ndash;purge-keys option purges all keys associated to the UID.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 删除普通用户</span>
+radosgw-admin  user rm --uid<span class="o">=</span>foo
+
+<span class="c1"># 删除子账号</span>
+radosgw-admin subuser rm --subuser<span class="o">=</span>johndoe:swift
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="67-添加删除key">6.7 添加/删除KEY</h4>
+<p>普通用户和子用户都需要key才能访问S3和Swift接口服务；</p>
+<p>一个普通用户创建多个key，一个子用户只能有一个key</p>
+<p>使用S3，用户需要一个由访问密钥和密钥组成的密钥对。使用Swift，用户通常需要密钥（密码），并将其与关联的用户ID一起使用。您可以创建密钥，并指定或生成访问密钥和/或密钥。您也可以删除密钥。选项包括：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">--key-type<span class="o">=</span>&lt;type&gt;    指定密钥类型。选项是：s3，swift
+--access-key<span class="o">=</span>&lt;key&gt;   手动指定S3访问密钥。
+--secret-key<span class="o">=</span>&lt;key&gt;   手动指定S3密钥或Swift密钥。
+--gen-access-key     自动生成随机S3访问密钥。
+--gen-secret         自动生成随机S3密钥或随机Swift密钥。
+</code></pre></td></tr></table>
+</div>
+</div><p>例子：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 添加 S3 key</span>
+radosgw-admin key create --uid<span class="o">=</span>foo --key-type<span class="o">=</span>s3 --access-key fooAccessKey --secret-key fooSecretKey
+
+<span class="c1"># 删除 S3 key</span>
+radosgw-admin key rm --uid<span class="o">=</span>foo --key-type<span class="o">=</span>s3 --access-key<span class="o">=</span>fooAccessKey
+
+<span class="c1"># 添加 Swift key</span>
+radosgw-admin key create --subuser<span class="o">=</span>foo:bar --key-type<span class="o">=</span>swift --secret-key barSecret
+
+<span class="c1"># 删除 Swift Key</span>
+radosgw-admin key rm -subuser<span class="o">=</span>foo:bar --key-type<span class="o">=</span>swift
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="68-管理员配置">6.8 管理员配置</h4>
+<p>Ceph存储集群提供了一个管理API，使用户能够通过REST API执行管理功能。默认情况下，用户无权访问此API。要使用户能够执行管理功能，请为用户提供管理功能。</p>
+<p>要向用户添加管理功能，请执行以下操作：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin caps add --uid<span class="o">={</span>uid<span class="o">}</span> --caps<span class="o">={</span>caps<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>您可以向用户，存储桶，元数据和使用（利用率）添加读取，写入或所有功能。例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">--caps<span class="o">=</span><span class="s2">&#34;[users|buckets|metadata|usage|zone]=[*|read|write|read, write]&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 添加管理功能</span>
+radosgw-admin caps add --uid<span class="o">=</span>johndoe --caps<span class="o">=</span><span class="s2">&#34;users=*;buckets=*&#34;</span>
+
+<span class="c1"># 删除管理功能</span>
+radosgw-admin caps rm --uid<span class="o">=</span>johndoe --caps<span class="o">={</span>caps<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="69-用户权限修改">6.9 用户权限修改</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 允许admin读写users信息：</span>
+radosgw-admin caps add --uid<span class="o">=</span>admin --caps<span class="o">=</span><span class="s2">&#34;users=*&#34;</span>
+
+<span class="c1"># 允许admin读写所有的usage信息：</span>
+radosgw-admin caps add --uid<span class="o">=</span>admin --caps<span class="o">=</span><span class="s2">&#34;usage=read,write&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="610-配额管理">6.10 配额管理</h4>
+<p>Ceph对象网关使您可以为用户拥有的用户和存储桶设置配额。配额包括存储桶中的最大对象数以及存储桶可容纳的最大存储大小。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">存储桶：该--bucket选项允许您为用户拥有的存储桶指定配额。
+
+最大对象：该--max-objects设置允许您指定最大对象数。负值会禁用此设置。
+
+最大大小：该--max-size选项允许您以B/K/M/G/T, 指定配额大小，其中B是默认值。负值会禁用此设置。
+
+配额范围：该--quota-scope选项设置配额的范围。选项是bucket和user。存储桶配额适用于用户拥有的存储桶。用户配额适用于用户。
+</code></pre></td></tr></table>
+</div>
+</div><p>设置用户配额
+在启用配额之前，必须先设置配额参数。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 命令格式</span>
+radosgw-admin quota <span class="nb">set</span> --quota-scope<span class="o">=</span>user --uid<span class="o">=</span>&lt;uid&gt; <span class="o">[</span>--max-objects<span class="o">=</span>&lt;num objects&gt;<span class="o">]</span> <span class="o">[</span>--max-size<span class="o">=</span>&lt;max size&gt;<span class="o">]</span>
+
+<span class="c1"># 例子</span>
+radosgw-admin quota <span class="nb">set</span> --quota-scope<span class="o">=</span>user --uid<span class="o">=</span>johndoe --max-objects<span class="o">=</span><span class="m">1024</span> --max-size<span class="o">=</span>1024B
+</code></pre></td></tr></table>
+</div>
+</div><p>(1) 启用/禁用用户配额</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin quota <span class="nb">enable</span> --quota-scope<span class="o">=</span>user --uid<span class="o">=</span>&lt;uid&gt;
+radosgw-admin quota disable --quota-scope<span class="o">=</span>user --uid<span class="o">=</span>&lt;uid&gt;
+</code></pre></td></tr></table>
+</div>
+</div><p>(2) 设置存储桶配额</p>
+<p>存储桶配额适用于指定的存储桶uid。它们独立于用户。num对象和/或max size的负值表示禁用特定配额属性检查。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin quota <span class="nb">set</span> --uid<span class="o">=</span>&lt;uid&gt; --quota-scope<span class="o">=</span>bucket <span class="o">[</span>--max-objects<span class="o">=</span>&lt;num objects&gt;<span class="o">]</span> <span class="o">[</span>--max-size<span class="o">=</span>&lt;max size<span class="o">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>(3) 启用/禁用存储桶配额
+设置存储区配额后，您可以启用它。例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin quota <span class="nb">enable</span> --quota-scope<span class="o">=</span>bucket --uid<span class="o">=</span>&lt;uid&gt;
+radosgw-admin quota disable --quota-scope<span class="o">=</span>bucket --uid<span class="o">=</span>&lt;uid&gt;
+</code></pre></td></tr></table>
+</div>
+</div><p>(4) 获取配额设置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin user info --uid<span class="o">=</span>&lt;uid&gt;
+</code></pre></td></tr></table>
+</div>
+</div><p>(5) 更新配额统计</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-shell" data-lang="shell">radosgw-admin user stats --uid<span class="o">=</span>&lt;uid&gt; --sync-stats
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="六参考">六、参考</h2>
+<p>权限：</p>
+<p><a href="https://blog.csdn.net/litianze99/article/details/44624451">https://blog.csdn.net/litianze99/article/details/44624451</a></p>
+<p><a href="http://int32bit.me/2016/05/19/Ceph-Pool%E6%93%8D%E4%BD%9C%E6%80%BB%E7%BB%93/">http://int32bit.me/2016/05/19/Ceph-Pool%E6%93%8D%E4%BD%9C%E6%80%BB%E7%BB%93/</a>)</p>
+<p><a href="https://blog.csdn.net/zzq900503/article/details/80328428">https://blog.csdn.net/zzq900503/article/details/80328428</a></p>
+<p><a href="https://www.infoq.cn/article/4N2whf1y1lH_Hd5QYOkW">https://www.infoq.cn/article/4N2whf1y1lH_Hd5QYOkW</a></p>
+<p><a href="https://www.jianguoyun.com/p/DUxy9I4QxJ2LBxiTwN8B">https://www.jianguoyun.com/p/DUxy9I4QxJ2LBxiTwN8B</a></p>
+<p>使用radosgw-admin管理rgw</p>
+<p><a href="https://blog.frognew.com/2017/02/ceph-rgw.html#%E4%BD%BF%E7%94%A8radosgw-admin%E7%AE%A1%E7%90%86rgw">https://blog.frognew.com/2017/02/ceph-rgw.html#%E4%BD%BF%E7%94%A8radosgw-admin%E7%AE%A1%E7%90%86rgw</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">Blueskea</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-11-24
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        
+        
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:blueskea@gmail.com" class="iconfont icon-email" title="email"></a>
+  <a href="https://blueskea.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2018 - 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Blueskea</span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+<script id="baidu_push">
+  (function(){
+    if (window.location.hostname === 'localhost') return;
+    var bp = document.createElement('script'); bp.async = true;
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+      bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+  })();
+</script>
+
+
+
+
+</body>
+</html>
